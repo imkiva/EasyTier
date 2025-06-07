@@ -18,8 +18,10 @@ use super::{
 };
 
 fn configure_client() -> ClientConfig {
+    let mut tls_client_config = get_insecure_tls_client_config();
+    tls_client_config.alpn_protocols = vec![b"h3".to_vec()];
     ClientConfig::new(Arc::new(
-        QuicClientConfig::try_from(get_insecure_tls_client_config()).unwrap(),
+        QuicClientConfig::try_from(tls_client_config).unwrap(),
     ))
 }
 
@@ -48,9 +50,6 @@ fn configure_server() -> Result<(ServerConfig, Vec<u8>), Box<dyn Error>> {
 
     Ok((server_config, certs[0].to_vec()))
 }
-
-#[allow(unused)]
-pub const ALPN_QUIC_HTTP: &[&[u8]] = &[b"hq-29"];
 
 /// Runs a QUIC server bound to given address.
 
